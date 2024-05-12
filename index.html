@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-176109454-1"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'UA-176109454-1');
+        </script>
+        
+        <title>将 Schem 转为 Schematic</title>
+        
+        <!-- https://github.com/kpanuragh/zlib -->
+        <script src="zlib.js"></script>
+        
+        <!-- https://github.com/sjmulder/nbt-js -->
+        <script src="nbt.js"></script>
+        
+        <script src="schemtoschematic.js"></script>
+        
+        <script>
+            function uploadFile(file) {
+                console.log('Processing ' + file.name);
+                var fr = new FileReader();
+                fr.onload = function() {
+                    schemtoschematic(fr.result, function(data) {                        
+                        var name = file.name;
+                    
+                        if (~name.lastIndexOf('.')) {
+                            name = name.substr(0, name.lastIndexOf('.'));
+                        }
+                    
+                        name += '.schematic';
+                    
+                        var blob = new Blob([data], {type: 'application/nbt'});
+                        var link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = name;
+                        link.innerHTML = 'Download ' + name;
+                        link.click();
+                        var li = document.createElement('li');
+                        li.appendChild(link);
+                        document.querySelector('#downloads').appendChild(li);
+                    });
+                };
+                fr.readAsArrayBuffer(file);
+            }
+            
+            function upload(input) {
+                for (var i = 0; i < input.files.length; i++) {
+                    uploadFile(input.files[i]);
+                }
+            }
+        </script>
+        
+        <style>
+            * {
+                font-family: Arial, sans-serif;
+            }
+            
+            html {
+                height: 100%;
+            }
+            
+            body {
+                background: #ddd;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            section {
+                background: white;
+                box-shadow: 0 0 5px #aaa;
+                height: 100%;
+                margin: auto;
+                width: 600px;
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 20px;
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <h1>将 schem 文件转换为 schematic 文件</h1>
+            <label for="file">在这里上传你的 schem 文件</label>: <input id="file" type="file" onchange="upload(this)" multiple/><br/>
+            <small>隐私声明：所有上传的 schem 都保留在本地，不由任何服务器处理 转换速度取决于你的设备</small>
+            <ul id="downloads"></ul>
+            <p id="error"></p>
+        </scetion>
+    </body>
+</html>
